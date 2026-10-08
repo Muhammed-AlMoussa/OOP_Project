@@ -17,6 +17,8 @@ private:
 	int _Month;
 	int _Year;
 	enum enDays { eSun = 0, eMon = 1, eTue = 2, eWed = 3, eThu = 4, eFri = 5, eSat = 6 };
+	enum enComparingDate { eBefore = -1, eEqual = 0, eAfter = 1 };
+
 
 public:
 
@@ -365,27 +367,255 @@ public:
 		return CalculatingActualVicationDays(*this, EndVicationDate, DayVacationStarts);
 	}
 
-	clsDate DateVacationEnd(clsDate sDateFrom, short VicationDays)
+	static clsDate DateVacationEnd(clsDate sDateFrom, short VicationDays)
 	{
-
 		short Counter = 0;
-		while (IsWeekend(sDateFrom._Day))
+		short DayOrder = DayOrderByGregorianCalendar(sDateFrom);
+		while (IsWeekend(DayOrder))
 		{
 			sDateFrom. IncreasingDateOneDay();
 		}
 
 		for (short i = 1; i <= VicationDays + Counter; i++)
 		{
-			if (IsWeekend(sDateFrom._Day))
+			if (IsWeekend(DayOrder))
 				Counter++;
 			sDateFrom. IncreasingDateOneDay();
 		}
 
-		while (IsWeekend(sDateFrom._Day))
+		while (IsWeekend(DayOrder))
 		{
 			sDateFrom. IncreasingDateOneDay();
 		}
 		return sDateFrom;
+	}
+
+	clsDate DateVacationEnd(short VicationDays) const
+	{
+		return DateVacationEnd(*this, VicationDays);
+	}
+
+	static bool IsDateAfterDate2(clsDate cDate1, clsDate cDate2)
+	{
+		return (cDate1._Year > cDate2._Year) ? true : (cDate1._Year == cDate2._Year) ? (cDate1._Month > cDate2._Month) ? true : (cDate1._Month == cDate2._Month) ? (cDate1._Day > cDate2._Day) ? true : false : false : false;
+	}
+
+	bool IsDateAfterDate2(clsDate cDate2)
+	{
+		return IsDateAfterDate2(*this, cDate2);
+	}
+
+	static bool IsDateEqualDate2(clsDate cDate1, clsDate cDate2)
+	{
+		return (cDate1._Year == cDate2._Year && cDate1._Month == cDate2._Month && cDate1._Day == cDate2._Day);
+	}
+
+	bool IsDateEqualDate2(clsDate cDate2)
+	{
+		return IsDateEqualDate2(*this, cDate2);
+	}
+
+	static enComparingDate ComparingDateAndDate2(clsDate cDate1, clsDate cDate2)
+	{
+		if (IsDateBeforeDate2(cDate1, cDate2))
+			return enComparingDate::eBefore;
+		if (IsDateEqualDate2(cDate1, cDate2))
+			return enComparingDate::eEqual;
+		return  enComparingDate::eAfter;
+	}
+
+	enComparingDate ComparingDateAndDate2( clsDate cDate2)
+	{
+		return ComparingDateAndDate2(*this, cDate2);
+	}
+
+	static short NumberOfDayInAYear(short Year)
+	{
+		return (IsLeapYear(Year)) ? 366 : 365;
+	}
+
+	short NumberOfDayInAYear()
+	{
+		return NumberOfDayInAYear(_Year);
+	}
+
+	static short NumberOfHoursInAYear(short Year)
+	{
+		return (NumberOfDayInAYear(Year) * 24);
+	}
+
+	short NumberOfHoursInAYear()
+	{
+		return NumberOfHoursInAYear(_Year);
+	}
+
+	static int NumberOfMinutesInAYear(short Year)
+	{
+		return (NumberOfHoursInAYear(Year) * 60);
+	}
+
+	int NumberOfMinutesInAYear()
+	{
+		return NumberOfMinutesInAYear(_Year);
+	}
+
+	static int NumberOfSecondsInAYear(short Year)
+	{
+		return (NumberOfMinutesInAYear(Year) * 60);
+	}
+
+	int NumberOfSecondsInAYear()
+	{
+		return NumberOfSecondsInAYear(_Year);
+	}
+
+	void PrintDateInfo()
+	{
+		short DO = DayOrderByGregorianCalendar();
+		//short DO = DayOrderByJulianCalendar(Year, Month, Day);
+
+
+		cout << "\n\nDate        : " << _Day << "/" << _Month << "/" << _Year;
+		cout << "\nDay Order   : " << DO;
+		cout << "\nDay Name    : " << DayNameInWeekByOrder(DO) << endl;
+	}
+
+	static string MonthName(short Month)
+	{
+		string Months[12] = { "Jan" , "Feb" , "March" , "April" ,"May" , "June" , "July" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" };
+		return Months[Month - 1];
+	}
+
+	string MonthName()
+	{
+		return MonthName(_Month);
+	}
+
+	static void PrintDaysName()
+	{
+		for (short i = 0; i < 7; i++)
+		{
+			printf(" %s\t", DayNameInWeekByOrder(i).c_str());
+			//cout << DayNameInWeekByOrder(i) << "\t";
+		}
+		printf("\n");
+	}
+
+	static short WhichDayTheMonthStarts(clsDate cDate) 
+	{
+		short FirstDayInMonth = DayOrderByGregorianCalendar(cDate);
+
+		short Counter = 0;
+		while (Counter != FirstDayInMonth)
+		{
+			Counter++;
+			printf("\t");
+		}
+		return Counter;
+	}
+
+	short WhichDayTheMonthStarts() const
+	{
+		return WhichDayTheMonthStarts(*this);
+	}
+	
+	static void PrintMonthInfo(short FirstDayInMonth, clsDate cDate)
+	{
+		short NumberOfDays = NumberOfDaysInMonth(cDate._Year, cDate._Month);
+
+		
+		for (int j = 1; j <= NumberOfDays; j++)
+		{
+			printf("  %d\t", j);
+
+			if (++FirstDayInMonth == 7)
+			{
+				printf("\n");
+				FirstDayInMonth = 0;
+			}
+		}
+	}
+
+	void PrintMonthInfo(short FirstDayInMonth)
+	{
+		PrintMonthInfo(FirstDayInMonth, *this);
+	}
+
+	static void PrintMonthCalander(clsDate cDate)
+	{
+		short FirstDayInMonth = 0;
+
+		printf("________________________%s________________________\n\n", MonthName(cDate._Month).c_str());
+		PrintDaysName();
+
+		FirstDayInMonth = WhichDayTheMonthStarts(cDate);
+
+		PrintMonthInfo(FirstDayInMonth , cDate);
+		printf("\n---------------------------------------------------\n");
+
+	}
+
+	void PrintMonthCalander()
+	{
+		PrintMonthCalander(*this);
+	}
+
+	static void PrintYearCalender(short Year)
+	{
+		printf("\n ____________________________________________________\n");
+		printf("\n                    Calender - %d\n", Year);
+		printf(" ____________________________________________________\n\n");
+
+		for (short i = 1; i <= 12; i++)
+		{
+			PrintMonthCalander(clsDate (1,1,Year));
+		}
+	}
+
+	void PrintYearCalender()
+	{
+		PrintYearCalender(_Year);
+	}
+
+	static short NumberOfDaysFromTheBiginingOfYear(clsDate cDate)
+	{
+		short NumberOfDays = 0;
+
+		for (short i = 1; i < cDate._Month; i++)
+		{
+			NumberOfDays += NumberOfDaysInMonth(cDate._Year, i);
+		}
+		NumberOfDays += cDate._Day;
+		return NumberOfDays;
+	}
+
+	short NumberOfDaysFromTheBiginingOfYear()
+	{
+		return NumberOfDaysFromTheBiginingOfYear(*this);
+	}
+
+	clsDate KnowMonthByNumberOfDays(short Year, short NumberOfDays)
+	{
+		clsDate cDate;
+		cDate.Year = Year;
+		short RemainingDays = NumberOfDays;
+		short MonthDays = 0;
+		while (true)
+		{
+			MonthDays = NumberOfDaysInMonth(Year, cDate.Month);
+			if (RemainingDays > MonthDays)
+			{
+				RemainingDays -= MonthDays;
+				cDate.Month++;
+			}
+			else
+			{
+
+				cDate.Day = RemainingDays;
+				break;
+			}
+		}
+		return cDate;
 	}
 
 	void Print()

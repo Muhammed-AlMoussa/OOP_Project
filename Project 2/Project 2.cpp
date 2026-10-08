@@ -29,5 +29,12 @@ int main()
 	Date2.Print();
 	
 	cout << Date2.CalculatingActualVicationDays(Date1, 5) << endl;
+
+	cout << "Number of minutes in a year : " << Date1.NumberOfMinutesInAYear() << endl;
+
+	clsDate::PrintMonthCalander(Date1);
+	Date2.PrintMonthCalander();
+
+	clsDate::PrintYearCalender(2021);
 	return 0;
 }
